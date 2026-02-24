@@ -21,8 +21,6 @@
 <canvas id="vfx-canvas"></canvas>
 <div class="screen-flash" id="sf"></div>
 <div class="fury-border" id="fb"></div>
-<div class="reward-border" id="rb"></div>
-<div class="bonus-vignette" id="bvig"></div>
 <div class="vignette" id="vig"></div>
 <div class="nebula" id="nebula"></div>
 <div class="milestone-overlay" id="milestone-overlay"></div>
@@ -77,8 +75,6 @@
             ⭐ Prestigio: <span id="plvl">0</span> (x<span id="pmult">1.0</span>)
         </div>
 
-        <div class="reward-badge" id="reward-badge" style="display:none"></div>
-
         <div class="combo" id="combo">
             🔥 COMBO x<span id="ccount">0</span>
         </div>
@@ -89,13 +85,6 @@
 
         <div class="pci" id="pci">+1 por clic</div>
         <div class="dpi" id="dpi"></div>
-
-        <!-- Rewarded Ad Button -->
-        <div class="rw-c" id="rw-c">
-            <button class="rw-btn" id="b-rewarded">
-                <span class="rw-icon">📺</span> Ver anuncio (+Bonus)
-            </button>
-        </div>
 
         <!-- Fury Button -->
         <div class="fury-c">
@@ -121,57 +110,6 @@
     </div>
     <div class="mtrack">
         <div class="mfill" id="m-fill"></div>
-    </div>
-</div>
-
-<!-- ═══ Ad Banner (bottom, non-intrusive) ═══ -->
-<div class="ad-banner" id="ad-banner" style="display:none">
-    <span class="ad-banner-label">AD</span>
-    <div class="ad-banner-live" id="ad-banner-live">
-        <div id="container-18e6fe8da5f48e31e9d71de2dbd5b233"></div>
-    </div>
-    <span class="ad-banner-text" id="ad-banner-text">⚒️ Hammer Empire Pro</span>
-    <span class="ad-freq-indicator" id="ad-freq">–</span>
-    <button class="ad-banner-close" id="ad-banner-close" title="Cerrar">✕</button>
-</div>
-
-<!-- ═══ GDPR/CCPA Consent Banner ═══ -->
-<div class="consent-banner" id="consent-banner">
-    <div class="consent-icon">🍪</div>
-    <div class="consent-text">
-        <strong>Hammer Empire</strong> utiliza anuncios opcionales para mantenerse gratuito.
-        Los anuncios pueden usar cookies para personalización.
-        Puedes jugar sin anuncios si lo prefieres.
-    </div>
-    <div class="consent-btns">
-        <button class="consent-btn accept" id="consent-accept">✅ Aceptar anuncios</button>
-        <button class="consent-btn decline" id="consent-decline">Jugar sin anuncios</button>
-    </div>
-</div>
-
-<!-- ═══ Ad Debug Overlay (hidden by default) ═══ -->
-<div class="ad-debug" id="ad-debug"></div>
-
-<!-- ═══ Milestone Reward Prompt (Part 6 — non-modal, auto-dismiss) ═══ -->
-<div class="milestone-prompt" id="milestone-reward-prompt">
-    <div class="mp-content">
-        <div class="mp-header">
-            <span class="mp-icon">🏆</span>
-            <span class="mp-title">¡Nuevo hito!</span>
-        </div>
-        <div class="mp-name" id="mrp-name">---</div>
-        <div class="mp-offer">
-            <span class="mp-ad-icon">📺</span>
-            <span>Ver anuncio para obtener bonus</span>
-        </div>
-        <div class="mp-bonus" id="mrp-bonus">x2 durante 30s</div>
-        <div class="mp-timer-bar">
-            <div class="mp-timer-fill" id="mrp-timer-fill"></div>
-        </div>
-        <div class="mp-btns">
-            <button class="mp-btn accept" id="mrp-accept">📺 Ver anuncio</button>
-            <button class="mp-btn decline" id="mrp-decline">No gracias</button>
-        </div>
     </div>
 </div>
 
@@ -213,47 +151,6 @@
         <button class="mbtn cancel" id="s-no">Cerrar</button>
     </div>
 </div>
-
-<!-- Rewarded Ad (watching) -->
-<div class="modal-ov" id="mo-rewarded">
-    <div class="ad-rewarded-content">
-        <h2>📺 ANUNCIO RECOMPENSADO</h2>
-        <p class="ad-rw-watching">Viendo anuncio…</p>
-        <p class="ad-rw-info" id="ad-rw-info">Recompensa: x2 durante 30s</p>
-        <div class="ad-placeholder" id="ad-rw-placeholder">
-            <div class="ad-pattern"></div>
-            <div class="ad-live-slot" id="ad-rw-live"></div>
-            <div class="ad-placeholder-icon">📺</div>
-            <div class="ad-placeholder-text">Espacio publicitario</div>
-        </div>
-        <div class="ad-rw-bar-track">
-            <div class="ad-rw-bar" id="ad-rw-bar"></div>
-        </div>
-        <div class="ad-rw-timer" id="ad-rw-timer">5s</div>
-        <button class="mbtn cancel" id="ad-rw-close" style="display:none">Cancelar</button>
-    </div>
-</div>
-
-<!-- Interstitial Ad (at natural pauses) -->
-<div class="modal-ov" id="mo-interstitial">
-    <div class="ad-interstitial">
-        <div class="ad-context" id="ad-int-ctx">🏆 ¡Hito alcanzado!</div>
-        <div class="ad-placeholder" id="ad-int-placeholder" style="height:240px">
-            <div class="ad-pattern"></div>
-            <div class="ad-live-slot" id="ad-int-live"></div>
-            <div class="ad-placeholder-icon">📢</div>
-            <div class="ad-placeholder-text">Espacio publicitario</div>
-        </div>
-        <div class="ad-countdown" id="ad-int-cd"></div>
-        <button class="mbtn" id="ad-int-skip" style="display:none">Cerrar ✕</button>
-    </div>
-</div>
-
-<!-- ═══ Ad Network Scripts (Adsterra / EffectiveGate) ═══ -->
-<!-- Banner/Display ad -->
-<script async="async" data-cfasync="false" src="https://pl28780900.effectivegatecpm.com/18e6fe8da5f48e31e9d71de2dbd5b233/invoke.js"></script>
-<!-- Popunder/Interstitial ad (Adsterra) -->
-<script src="https://pl28780933.effectivegatecpm.com/7f/b8/73/7fb87382e3c3296ca657770314a0c15e.js"></script>
 
 <!-- ═══ Module Entry Point ═══ -->
 <script type="module" src="js/main.js"></script>
