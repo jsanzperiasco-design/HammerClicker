@@ -4,16 +4,441 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>⚒️ Hammer Empire</title>
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a12;
+            --bg2: #12121f;
+            --bg3: #1a1a2e;
+            --panel: rgba(16,16,30,0.92);
+            --border: rgba(255,140,0,0.25);
+            --accent: #ff8c00;
+            --accent2: #ffa940;
+            --green: #00ff88;
+            --red: #ff4444;
+            --blue: #4488ff;
+            --purple: #aa44ff;
+            --text: #e8e8f0;
+            --text2: #8888aa;
+            --glow: 0 0 20px rgba(255,140,0,0.4);
+        }
 
-    <!-- Modular CSS -->
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/effects.css">
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* ═══ VFX ═══ */
+        #vfx-canvas {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 9999;
+        }
+        .screen-flash {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 9998;
+            background: rgba(255,140,0,0.3); opacity:0;
+            transition: opacity 0.1s;
+        }
+        .screen-flash.active { opacity:1; }
+        .fury-border {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 9997;
+            border: 4px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .fury-border.active {
+            border-color: var(--accent);
+            box-shadow: inset 0 0 60px rgba(255,140,0,0.2);
+            animation: furyPulse 0.5s infinite alternate;
+        }
+        .vignette {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 1;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+        }
+        .nebula {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 0; opacity: 0.15;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(255,140,0,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(100,60,255,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, rgba(0,200,255,0.08) 0%, transparent 50%);
+        }
+        .milestone-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 10000; opacity:0;
+            background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%);
+            transition: opacity 0.5s;
+        }
+        .milestone-overlay.active { opacity:1; }
+
+        /* ═══ Header ═══ */
+        .hdr {
+            position: sticky; top:0; z-index: 100;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 16px;
+            display: flex; align-items: center; gap: 16px;
+            backdrop-filter: blur(12px);
+            flex-wrap: wrap;
+        }
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem; font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), #ffcc00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            white-space: nowrap;
+        }
+        .stats { display: flex; gap: 16px; flex:1; justify-content: center; }
+        .st { text-align: center; }
+        .sv {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--accent);
+        }
+        .sl { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+        .hdr-btns { display: flex; gap: 6px; }
+        .hbtn, .sbtn {
+            background: var(--bg3); border: 1px solid var(--border);
+            color: var(--text); padding: 6px 12px; border-radius: 8px;
+            cursor: pointer; font-size: 0.8rem; font-family: 'Rajdhani', sans-serif;
+            transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+        }
+        .hbtn:hover, .sbtn:hover {
+            background: var(--accent); color: #000;
+            box-shadow: var(--glow);
+        }
+        .bt { display: none; }
+        @media(min-width:768px) { .bt { display: inline; } }
+
+        /* ═══ Notifications ═══ */
+        .notif {
+            position: fixed; top: 70px; right: 16px; z-index: 200;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .notif-item {
+            background: var(--panel); border: 1px solid var(--border);
+            padding: 10px 16px; border-radius: 10px;
+            font-size: 0.85rem; backdrop-filter: blur(8px);
+            animation: slideIn 0.3s ease-out, fadeOut 0.5s 2.5s forwards;
+            max-width: 280px;
+        }
+        .nq {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            z-index: 200; display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+
+        /* ═══ Main Grid ═══ */
+        .main {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 0;
+            min-height: calc(100vh - 120px);
+            position: relative; z-index: 2;
+        }
+        @media(max-width:900px) {
+            .main { grid-template-columns: 1fr; }
+            .pnl { max-height: 300px; }
+        }
+
+        /* ═══ Panels ═══ */
+        .pnl {
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 12px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+        .pnl-r { border-right: none; border-left: 1px solid var(--border); }
+        .pt {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem; font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Upgrade Cards */
+        .ucard {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .ucard:hover {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+            transform: translateY(-1px);
+        }
+        .ucard.locked { opacity: 0.4; pointer-events: none; }
+        .ucard .uname { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+        .ucard .udesc { font-size: 0.7rem; color: var(--text2); margin-bottom: 4px; }
+        .ucard .ucost {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem; color: var(--green);
+        }
+        .ucard .ucost.expensive { color: var(--red); }
+        .ucard .ulvl {
+            position: absolute; top: 8px; right: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem; color: var(--text2);
+        }
+
+        /* ═══ Center Area ═══ */
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+            min-height: 500px;
+        }
+
+        /* Orbits */
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(255,140,0,0.06);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: spin 20s linear infinite;
+        }
+        .orbit:nth-child(1) { width: 250px; height: 250px; animation-duration: 25s; }
+        .orbit:nth-child(2) { width: 350px; height: 350px; animation-duration: 35s; animation-direction: reverse; }
+        .orbit:nth-child(3) { width: 450px; height: 450px; animation-duration: 45s; }
+        .orbit:nth-child(4) { width: 550px; height: 550px; animation-duration: 55s; animation-direction: reverse; }
+
+        .prestige-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: #ffcc00;
+            margin-bottom: 12px;
+            padding: 4px 14px;
+            border: 1px solid rgba(255,204,0,0.3);
+            border-radius: 20px;
+            background: rgba(255,204,0,0.08);
+        }
+
+        .combo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 0 0 10px rgba(255,140,0,0.5);
+        }
+        .combo.active { opacity: 1; animation: comboPulse 0.5s infinite alternate; }
+
+        /* Hammer Container */
+        .hc {
+            width: 180px; height: 180px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s;
+        }
+        .hc:active { transform: scale(0.92); }
+        .hmr {
+            width: 140px; height: 140px;
+            filter: drop-shadow(0 0 30px rgba(255,140,0,0.5));
+            transition: filter 0.3s;
+        }
+        .hmr svg { width: 100%; height: 100%; }
+        .hmr.fury-active {
+            filter: drop-shadow(0 0 50px rgba(255,100,0,0.8));
+            animation: hammerGlow 0.3s infinite alternate;
+        }
+
+        .pci {
+            margin-top: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+        .dpi {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* Damage Popups */
+        .dmg-pop {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            color: var(--accent);
+            pointer-events: none;
+            animation: dmgFloat 1s ease-out forwards;
+            text-shadow: 0 0 10px rgba(255,140,0,0.6);
+            z-index: 50;
+        }
+        .dmg-pop.crit {
+            color: #ffdd00;
+            font-size: 1.8rem;
+            text-shadow: 0 0 20px rgba(255,220,0,0.8);
+        }
+
+        /* Fury */
+        .fury-c { margin-top: 20px; text-align: center; }
+        .fury {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem; font-weight: 700;
+            padding: 10px 24px;
+            border: 2px solid var(--accent);
+            border-radius: 30px;
+            background: linear-gradient(135deg, rgba(255,140,0,0.15), rgba(255,60,0,0.15));
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .fury:hover {
+            background: linear-gradient(135deg, var(--accent), #ff4400);
+            color: #000;
+            box-shadow: 0 0 30px rgba(255,140,0,0.5);
+        }
+        .fury:disabled { opacity: 0.3; pointer-events: none; }
+        .fbar {
+            width: 200px; height: 6px;
+            background: var(--bg3);
+            border-radius: 3px;
+            margin: 8px auto 0;
+            overflow: hidden;
+        }
+        .ffill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ff4400);
+            width: 100%;
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+
+        /* ═══ Milestone Bar ═══ */
+        .mbar {
+            position: fixed; bottom:0; left:0; width:100%; z-index: 100;
+            background: var(--panel);
+            border-top: 1px solid var(--border);
+            padding: 6px 20px;
+            display: flex; align-items: center; gap: 12px;
+            backdrop-filter: blur(12px);
+        }
+        .minfo { display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+        .mlbl { font-size: 0.7rem; color: var(--text2); }
+        .mname { font-size: 0.8rem; color: var(--accent); font-weight: 700; }
+        .mtrack {
+            flex: 1; height: 8px;
+            background: var(--bg3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .mfill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--green));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* ═══ Modals ═══ */
+        .modal-ov {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.7);
+            display: none; align-items: center; justify-content: center;
+            z-index: 10001;
+            backdrop-filter: blur(4px);
+        }
+        .modal-ov.open { display: flex; }
+        .modal {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 32px;
+            max-width: 420px; width: 90%;
+            text-align: center;
+        }
+        .modal h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .modal p { font-size: 0.9rem; color: var(--text2); margin-bottom: 12px; }
+        .mbtn {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem; font-weight: 700;
+            padding: 8px 24px;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            background: var(--accent);
+            color: #000;
+            cursor: pointer;
+            margin: 4px;
+            transition: all 0.2s;
+        }
+        .mbtn:hover { box-shadow: var(--glow); }
+        .mbtn.cancel { background: var(--bg3); color: var(--text); border-color: var(--border); }
+        .mbtn.danger { background: var(--red); border-color: var(--red); color: #fff; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-bottom: 16px; text-align: left;
+        }
+        .stats-grid .sg-item {
+            background: var(--bg3);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .stats-grid .sg-label { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; }
+        .stats-grid .sg-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem; color: var(--accent);
+        }
+
+        /* ═══ Scrollbar ═══ */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* ═══ Animations ═══ */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes comboPulse { to { transform: scale(1.05); text-shadow: 0 0 20px rgba(255,140,0,0.8); } }
+        @keyframes hammerGlow {
+            to { filter: drop-shadow(0 0 70px rgba(255,60,0,1)); }
+        }
+        @keyframes furyPulse {
+            to { border-color: #ff4400; box-shadow: inset 0 0 80px rgba(255,60,0,0.3); }
+        }
+        @keyframes dmgFloat {
+            0% { opacity:1; transform: translateY(0) scale(1); }
+            100% { opacity:0; transform: translateY(-80px) scale(1.5); }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity:0; }
+            to { transform: translateX(0); opacity:1; }
+        }
+        @keyframes fadeOut {
+            to { opacity:0; transform: translateY(-20px); }
+        }
+        @keyframes milestoneFlash {
+            0%,100% { opacity:0; }
+            50% { opacity:1; }
+        }
+    </style>
 </head>
 <body>
 
@@ -53,11 +478,9 @@
 
 <!-- ═══ Notifications ═══ -->
 <div class="notif" id="notif"></div>
-<div class="nq" id="nq"></div>
 
 <!-- ═══ Main Game Grid ═══ -->
 <div class="main">
-
     <!-- Left Panel: Click Upgrades -->
     <div class="pnl pnl-l">
         <div class="pt">⚡ Mejoras de Clic</div>
@@ -80,7 +503,28 @@
         </div>
 
         <div class="hc" id="hc">
-            <div class="hmr" id="hmr"><!-- SVG injected by HammerSystem --></div>
+            <div class="hmr" id="hmr">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff8c00"/>
+                            <stop offset="100%" style="stop-color:#cc5500"/>
+                        </linearGradient>
+                        <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#888"/>
+                            <stop offset="100%" style="stop-color:#555"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Handle -->
+                    <rect x="46" y="45" width="8" height="45" rx="3" fill="url(#sg)" stroke="#333" stroke-width="1"/>
+                    <rect x="44" y="85" width="12" height="6" rx="2" fill="#666"/>
+                    <!-- Head -->
+                    <rect x="20" y="15" width="60" height="34" rx="5" fill="url(#hg)" stroke="#994400" stroke-width="1.5"/>
+                    <rect x="24" y="19" width="52" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+                    <!-- Glow -->
+                    <rect x="22" y="17" width="56" height="30" rx="4" fill="none" stroke="rgba(255,200,0,0.3)" stroke-width="1"/>
+                </svg>
+            </div>
         </div>
 
         <div class="pci" id="pci">+1 por clic</div>
@@ -114,16 +558,11 @@
 </div>
 
 <!-- ═══ Modals ═══ -->
-
-<!-- Prestige -->
 <div class="modal-ov" id="mo-prestige">
     <div class="modal">
         <h2>⭐ PRESTIGIO</h2>
         <p id="p-info">Reinicia tu progreso a cambio de un multiplicador permanente.</p>
-        <p>
-            Actual: <strong style="color:var(--accent)">x<span id="p-cur">1.0</span></strong>
-            → Nuevo: <strong style="color:var(--green)">x<span id="p-new">1.0</span></strong>
-        </p>
+        <p>Actual: <strong style="color:var(--accent)">x<span id="p-cur">1.0</span></strong> → Nuevo: <strong style="color:var(--green)">x<span id="p-new">1.0</span></strong></p>
         <div>
             <button class="mbtn" id="p-ok">Confirmar</button>
             <button class="mbtn cancel" id="p-no">Cancelar</button>
@@ -131,7 +570,6 @@
     </div>
 </div>
 
-<!-- Reset -->
 <div class="modal-ov" id="mo-reset">
     <div class="modal">
         <h2>🔄 REINICIAR TODO</h2>
@@ -143,7 +581,6 @@
     </div>
 </div>
 
-<!-- Stats -->
 <div class="modal-ov" id="mo-stats">
     <div class="modal">
         <h2>📊 ESTADÍSTICAS</h2>
@@ -152,8 +589,578 @@
     </div>
 </div>
 
-<!-- ═══ Module Entry Point ═══ -->
-<script type="module" src="js/main.js"></script>
+<script>
+// ══════════════════════════════════════════
+// HAMMER EMPIRE - Complete Game Engine
+// ══════════════════════════════════════════
+
+const $ = id => document.getElementById(id);
+
+// ── Game State ──
+let state = {
+    golpes: 0,
+    totalGolpes: 0,
+    clickPower: 1,
+    gps: 0,
+    prestigeLevel: 0,
+    prestigeMult: 1,
+    comboCount: 0,
+    comboTimer: null,
+    furyActive: false,
+    furyCooldown: false,
+    soundOn: true,
+    totalClicks: 0,
+    totalTime: 0,
+    upgrades: {},
+    generators: {}
+};
+
+// ── Upgrades Data ──
+const UPGRADES = [
+    { id:'u1', name:'Martillo Afilado', desc:'+1 por clic', baseCost:10, power:1, icon:'🔨' },
+    { id:'u2', name:'Guantes de Acero', desc:'+3 por clic', baseCost:50, power:3, icon:'🧤' },
+    { id:'u3', name:'Técnica Avanzada', desc:'+8 por clic', baseCost:200, power:8, icon:'📘' },
+    { id:'u4', name:'Martillo Rúnico', desc:'+20 por clic', baseCost:800, power:20, icon:'✨' },
+    { id:'u5', name:'Fuerza Titánica', desc:'+50 por clic', baseCost:3500, power:50, icon:'💪' },
+    { id:'u6', name:'Martillo de Dragón', desc:'+150 por clic', baseCost:15000, power:150, icon:'🐉' },
+    { id:'u7', name:'Forja Celestial', desc:'+500 por clic', baseCost:75000, power:500, icon:'🌟' },
+    { id:'u8', name:'Martillo Cósmico', desc:'+2000 por clic', baseCost:400000, power:2000, icon:'🌌' },
+];
+
+const GENERATORS = [
+    { id:'g1', name:'Aprendiz', desc:'1 golpe/s', baseCost:15, gps:1, icon:'👦' },
+    { id:'g2', name:'Herrero', desc:'5 golpes/s', baseCost:100, gps:5, icon:'⚒️' },
+    { id:'g3', name:'Maestro Forjador', desc:'20 golpes/s', baseCost:500, gps:20, icon:'👨‍🏭' },
+    { id:'g4', name:'Fragua Automática', desc:'80 golpes/s', baseCost:2500, gps:80, icon:'🏭' },
+    { id:'g5', name:'Ejército de Enanos', desc:'300 golpes/s', baseCost:12000, gps:300, icon:'⛏️' },
+    { id:'g6', name:'Golem de Hierro', desc:'1200 golpes/s', baseCost:60000, gps:1200, icon:'🤖' },
+    { id:'g7', name:'Volcán Forjador', desc:'5000 golpes/s', baseCost:300000, gps:5000, icon:'🌋' },
+    { id:'g8', name:'Estrella Fundidora', desc:'25000 golpes/s', baseCost:1500000, gps:25000, icon:'⭐' },
+];
+
+const MILESTONES = [
+    { target: 100, name: 'Primer Centenar', reward: 'Desbloquea combo' },
+    { target: 1000, name: 'Mil Golpes', reward: '+10% velocidad' },
+    { target: 10000, name: 'Forjador Experto', reward: '+25% poder' },
+    { target: 100000, name: 'Maestro del Yunque', reward: '+50% todo' },
+    { target: 1000000, name: 'Leyenda de la Forja', reward: 'x2 multiplicador' },
+    { target: 10000000, name: 'Dios del Martillo', reward: 'x3 multiplicador' },
+    { target: 100000000, name: 'Emperador Cósmico', reward: 'x5 multiplicador' },
+];
+
+let currentMilestone = 0;
+let milestoneBonus = 1;
+
+// ── Format Numbers ──
+function fmt(n) {
+    if (n < 1000) return Math.floor(n).toLocaleString('es');
+    const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi'];
+    const i = Math.floor(Math.log10(n) / 3);
+    if (i >= suffixes.length) return n.toExponential(2);
+    return (n / Math.pow(1000, i)).toFixed(1) + suffixes[i];
+}
+
+// ── Audio System ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function initAudio() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+}
+function playClick() {
+    if (!state.soundOn || !audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'square';
+    o.frequency.setValueAtTime(800, audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+    g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    o.start(); o.stop(audioCtx.currentTime + 0.15);
+}
+function playBuy() {
+    if (!state.soundOn || !audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(400, audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+    g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+    o.start(); o.stop(audioCtx.currentTime + 0.2);
+}
+function playMilestone() {
+    if (!state.soundOn || !audioCtx) return;
+    [0, 0.1, 0.2, 0.3].forEach((t, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime([523, 659, 784, 1047][i], audioCtx.currentTime + t);
+        g.gain.setValueAtTime(0.15, audioCtx.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.2);
+        o.start(audioCtx.currentTime + t);
+        o.stop(audioCtx.currentTime + t + 0.2);
+    });
+}
+
+// ── VFX: Particles ──
+const canvas = $('vfx-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function spawnParticles(x, y, count, color) {
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8 - 3,
+            life: 1,
+            decay: 0.015 + Math.random() * 0.02,
+            size: 2 + Math.random() * 4,
+            color: color || `hsl(${30 + Math.random() * 20}, 100%, ${50 + Math.random() * 30}%)`
+        });
+    }
+}
+
+function updateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15;
+        p.life -= p.decay;
+        if (p.life <= 0) return false;
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        return true;
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(updateParticles);
+}
+updateParticles();
+
+// ── Damage Popup ──
+function showDmg(amount, x, y, crit) {
+    const el = document.createElement('div');
+    el.className = 'dmg-pop' + (crit ? ' crit' : '');
+    el.textContent = '+' + fmt(amount);
+    el.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+    el.style.top = (y - 20) + 'px';
+    el.style.fontSize = crit ? '1.8rem' : (0.9 + Math.min(amount / 1000, 1)) + 'rem';
+    $('center').appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+// ── Notification ──
+function notify(msg) {
+    const el = document.createElement('div');
+    el.className = 'notif-item';
+    el.textContent = msg;
+    $('notif').appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+}
+
+// ── Combo System ──
+function updateCombo() {
+    state.comboCount++;
+    if (state.comboTimer) clearTimeout(state.comboTimer);
+    state.comboTimer = setTimeout(() => {
+        state.comboCount = 0;
+        $('combo').classList.remove('active');
+    }, 2000);
+    $('ccount').textContent = state.comboCount;
+    if (state.comboCount >= 5) {
+        $('combo').classList.add('active');
+    }
+}
+function getComboMult() {
+    if (state.comboCount < 5) return 1;
+    return 1 + Math.min(state.comboCount * 0.05, 3);
+}
+
+// ── Click Handler ──
+function handleClick(e) {
+    initAudio();
+    const rect = $('hc').getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    updateCombo();
+
+    const furyMult = state.furyActive ? 5 : 1;
+    const comboMult = getComboMult();
+    const crit = Math.random() < 0.05;
+    const critMult = crit ? 3 : 1;
+    const amount = Math.floor(state.clickPower * state.prestigeMult * milestoneBonus * furyMult * comboMult * critMult);
+
+    state.golpes += amount;
+    state.totalGolpes += amount;
+    state.totalClicks++;
+
+    playClick();
+    spawnParticles(cx, cy, crit ? 20 : 8, crit ? '#ffdd00' : undefined);
+    showDmg(amount, e.clientX - rect.left, e.clientY - rect.top, crit);
+
+    if (crit) {
+        $('sf').classList.add('active');
+        setTimeout(() => $('sf').classList.remove('active'), 100);
+    }
+
+    updateUI();
+}
+
+$('hc').addEventListener('click', handleClick);
+
+// ── Fury System ──
+let furyTimer;
+$('b-fury').addEventListener('click', () => {
+    if (state.furyCooldown || state.furyActive) return;
+    initAudio();
+    state.furyActive = true;
+    $('hmr').classList.add('fury-active');
+    $('fb').classList.add('active');
+    $('b-fury').disabled = true;
+    $('fbar').style.visibility = 'visible';
+
+    let remaining = 10;
+    const total = 10;
+    furyTimer = setInterval(() => {
+        remaining -= 0.1;
+        $('ffill').style.width = (remaining / total * 100) + '%';
+        if (remaining <= 0) {
+            clearInterval(furyTimer);
+            state.furyActive = false;
+            $('hmr').classList.remove('fury-active');
+            $('fb').classList.remove('active');
+            state.furyCooldown = true;
+            setTimeout(() => {
+                state.furyCooldown = false;
+                $('b-fury').disabled = false;
+                $('fbar').style.visibility = 'hidden';
+                $('ffill').style.width = '100%';
+            }, 30000);
+        }
+    }, 100);
+
+    notify('🔥 ¡Furia del Herrero activada! x5 durante 10s');
+});
+
+// ── Upgrades ──
+function getCost(base, level) {
+    return Math.floor(base * Math.pow(1.15, level));
+}
+
+function renderUpgrades() {
+    const container = $('uList');
+    container.innerHTML = '';
+    UPGRADES.forEach(u => {
+        const lvl = state.upgrades[u.id] || 0;
+        const cost = getCost(u.baseCost, lvl);
+        const canBuy = state.golpes >= cost;
+        const card = document.createElement('div');
+        card.className = 'ucard' + (!canBuy ? ' locked' : '');
+        card.innerHTML = `
+            <div class="uname">${u.icon} ${u.name}</div>
+            <div class="udesc">${u.desc}</div>
+            <div class="ucost ${canBuy ? '' : 'expensive'}">💰 ${fmt(cost)}</div>
+            <div class="ulvl">Lv.${lvl}</div>
+        `;
+        card.addEventListener('click', () => buyUpgrade(u));
+        container.appendChild(card);
+    });
+}
+
+function buyUpgrade(u) {
+    const lvl = state.upgrades[u.id] || 0;
+    const cost = getCost(u.baseCost, lvl);
+    if (state.golpes < cost) return;
+    state.golpes -= cost;
+    state.upgrades[u.id] = lvl + 1;
+    recalcClickPower();
+    playBuy();
+    notify(`⚡ ${u.name} → Nivel ${lvl + 1}`);
+    updateUI();
+}
+
+function recalcClickPower() {
+    let power = 1;
+    UPGRADES.forEach(u => {
+        const lvl = state.upgrades[u.id] || 0;
+        power += u.power * lvl;
+    });
+    state.clickPower = power;
+}
+
+// ── Generators ──
+function renderGenerators() {
+    const container = $('gList');
+    container.innerHTML = '';
+    GENERATORS.forEach(g => {
+        const lvl = state.generators[g.id] || 0;
+        const cost = getCost(g.baseCost, lvl);
+        const canBuy = state.golpes >= cost;
+        const card = document.createElement('div');
+        card.className = 'ucard' + (!canBuy ? ' locked' : '');
+        card.innerHTML = `
+            <div class="uname">${g.icon} ${g.name}</div>
+            <div class="udesc">${g.desc}</div>
+            <div class="ucost ${canBuy ? '' : 'expensive'}">💰 ${fmt(cost)}</div>
+            <div class="ulvl">x${lvl}</div>
+        `;
+        card.addEventListener('click', () => buyGenerator(g));
+        container.appendChild(card);
+    });
+}
+
+function buyGenerator(g) {
+    const lvl = state.generators[g.id] || 0;
+    const cost = getCost(g.baseCost, lvl);
+    if (state.golpes < cost) return;
+    state.golpes -= cost;
+    state.generators[g.id] = lvl + 1;
+    recalcGPS();
+    playBuy();
+    notify(`🏭 ${g.name} → x${lvl + 1}`);
+    updateUI();
+}
+
+function recalcGPS() {
+    let gps = 0;
+    GENERATORS.forEach(g => {
+        const lvl = state.generators[g.id] || 0;
+        gps += g.gps * lvl;
+    });
+    state.gps = gps;
+}
+
+// ── Auto Generation ──
+setInterval(() => {
+    if (state.gps > 0) {
+        const furyMult = state.furyActive ? 5 : 1;
+        const amount = state.gps * state.prestigeMult * milestoneBonus * furyMult / 10;
+        state.golpes += amount;
+        state.totalGolpes += amount;
+    }
+    state.totalTime += 100;
+}, 100);
+
+// ── Milestones ──
+function checkMilestones() {
+    if (currentMilestone >= MILESTONES.length) {
+        $('m-name').textContent = '¡Todos completados!';
+        $('m-fill').style.width = '100%';
+        return;
+    }
+    const ms = MILESTONES[currentMilestone];
+    const progress = Math.min(state.totalGolpes / ms.target, 1);
+    $('m-name').textContent = `${ms.name} (${fmt(ms.target)})`;
+    $('m-fill').style.width = (progress * 100) + '%';
+
+    if (state.totalGolpes >= ms.target) {
+        currentMilestone++;
+        recalcMilestoneBonus();
+        playMilestone();
+        notify(`🏆 ¡Hito alcanzado: ${ms.name}!`);
+        $('milestone-overlay').classList.add('active');
+        setTimeout(() => $('milestone-overlay').classList.remove('active'), 1500);
+        checkMilestones();
+    }
+}
+
+function recalcMilestoneBonus() {
+    milestoneBonus = 1;
+    for (let i = 0; i < currentMilestone && i < MILESTONES.length; i++) {
+        if (i === 0) milestoneBonus *= 1;
+        else if (i === 1) milestoneBonus *= 1.1;
+        else if (i === 2) milestoneBonus *= 1.25;
+        else if (i === 3) milestoneBonus *= 1.5;
+        else if (i === 4) milestoneBonus *= 2;
+        else if (i === 5) milestoneBonus *= 3;
+        else if (i === 6) milestoneBonus *= 5;
+    }
+}
+
+// ── Prestige ──
+function getPrestigeMult() {
+    return 1 + state.prestigeLevel * 0.5;
+}
+function calcNewPrestige() {
+    const bonus = Math.floor(Math.log10(Math.max(state.totalGolpes, 1)));
+    return Math.max(bonus, state.prestigeLevel + 1);
+}
+
+$('b-prestige').addEventListener('click', () => {
+    if (state.totalGolpes < 10000) {
+        notify('⚠️ Necesitas al menos 10,000 golpes totales para prestigiar');
+        return;
+    }
+    const newLvl = calcNewPrestige();
+    const newMult = 1 + newLvl * 0.5;
+    $('p-cur').textContent = state.prestigeMult.toFixed(1);
+    $('p-new').textContent = newMult.toFixed(1);
+    $('mo-prestige').classList.add('open');
+});
+
+$('p-ok').addEventListener('click', () => {
+    state.prestigeLevel = calcNewPrestige();
+    state.prestigeMult = getPrestigeMult();
+    state.golpes = 0;
+    state.totalGolpes = 0;
+    state.clickPower = 1;
+    state.gps = 0;
+    state.upgrades = {};
+    state.generators = {};
+    state.comboCount = 0;
+    currentMilestone = 0;
+    milestoneBonus = 1;
+    $('pbadge').style.display = 'block';
+    $('plvl').textContent = state.prestigeLevel;
+    $('pmult').textContent = state.prestigeMult.toFixed(1);
+    $('mo-prestige').classList.remove('open');
+    notify(`⭐ ¡Prestigio nivel ${state.prestigeLevel}! Multiplicador x${state.prestigeMult.toFixed(1)}`);
+    updateUI();
+    saveGame();
+});
+$('p-no').addEventListener('click', () => $('mo-prestige').classList.remove('open'));
+
+// ── Stats ──
+$('b-stats').addEventListener('click', () => {
+    const grid = $('stats-grid');
+    const items = [
+        ['Golpes Totales', fmt(state.totalGolpes)],
+        ['Clics Totales', fmt(state.totalClicks)],
+        ['Por Clic', fmt(state.clickPower)],
+        ['Golpes/s', fmt(state.gps)],
+        ['Prestigio', `Lv.${state.prestigeLevel} (x${state.prestigeMult.toFixed(1)})`],
+        ['Bonus Hitos', `x${milestoneBonus.toFixed(1)}`],
+        ['Tiempo Jugado', formatTime(state.totalTime)],
+        ['Hitos', `${currentMilestone}/${MILESTONES.length}`],
+    ];
+    grid.innerHTML = items.map(([l, v]) => `
+        <div class="sg-item">
+            <div class="sg-label">${l}</div>
+            <div class="sg-value">${v}</div>
+        </div>
+    `).join('');
+    $('mo-stats').classList.add('open');
+});
+$('s-no').addEventListener('click', () => $('mo-stats').classList.remove('open'));
+
+function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    if (h > 0) return `${h}h ${m % 60}m`;
+    if (m > 0) return `${m}m ${s % 60}s`;
+    return `${s}s`;
+}
+
+// ── Reset ──
+$('b-reset').addEventListener('click', () => $('mo-reset').classList.add('open'));
+$('r-ok').addEventListener('click', () => {
+    localStorage.removeItem('hammerEmpire');
+    location.reload();
+});
+$('r-no').addEventListener('click', () => $('mo-reset').classList.remove('open'));
+
+// ── Sound Toggle ──
+$('b-sound').addEventListener('click', () => {
+    initAudio();
+    state.soundOn = !state.soundOn;
+    $('b-sound').textContent = state.soundOn ? '🔊' : '🔇';
+});
+
+// ── Save / Load ──
+function saveGame() {
+    const data = {
+        golpes: state.golpes,
+        totalGolpes: state.totalGolpes,
+        totalClicks: state.totalClicks,
+        totalTime: state.totalTime,
+        prestigeLevel: state.prestigeLevel,
+        upgrades: state.upgrades,
+        generators: state.generators,
+    };
+    localStorage.setItem('hammerEmpire', JSON.stringify(data));
+}
+
+function loadGame() {
+    const raw = localStorage.getItem('hammerEmpire');
+    if (!raw) return;
+    try {
+        const data = JSON.parse(raw);
+        state.golpes = data.golpes || 0;
+        state.totalGolpes = data.totalGolpes || 0;
+        state.totalClicks = data.totalClicks || 0;
+        state.totalTime = data.totalTime || 0;
+        state.prestigeLevel = data.prestigeLevel || 0;
+        state.prestigeMult = 1 + state.prestigeLevel * 0.5;
+        state.upgrades = data.upgrades || {};
+        state.generators = data.generators || {};
+        recalcClickPower();
+        recalcGPS();
+        // Recalc milestones
+        currentMilestone = 0;
+        milestoneBonus = 1;
+        for (let i = 0; i < MILESTONES.length; i++) {
+            if (state.totalGolpes >= MILESTONES[i].target) {
+                currentMilestone = i + 1;
+            }
+        }
+        recalcMilestoneBonus();
+        if (state.prestigeLevel > 0) {
+            $('pbadge').style.display = 'block';
+            $('plvl').textContent = state.prestigeLevel;
+            $('pmult').textContent = state.prestigeMult.toFixed(1);
+        }
+    } catch(e) { console.error('Load error:', e); }
+}
+
+$('b-save').addEventListener('click', () => {
+    saveGame();
+    notify('💾 Partida guardada');
+});
+
+// Auto-save every 30s
+setInterval(saveGame, 30000);
+
+// ── UI Update ──
+function updateUI() {
+    $('d-golpes').textContent = fmt(state.golpes);
+    $('d-gps').textContent = fmt(Math.floor(state.gps * state.prestigeMult * milestoneBonus * (state.furyActive ? 5 : 1)));
+    $('d-cp').textContent = fmt(state.clickPower);
+    $('pci').textContent = `+${fmt(state.clickPower)} por clic`;
+    renderUpgrades();
+    renderGenerators();
+    checkMilestones();
+}
+
+// ── Main Loop ──
+setInterval(updateUI, 500);
+
+// ── Init ──
+loadGame();
+updateUI();
+notify('⚒️ ¡Bienvenido a Hammer Empire!');
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-ov').forEach(ov => {
+    ov.addEventListener('click', e => {
+        if (e.target === ov) ov.classList.remove('open');
+    });
+});
+</script>
 
 </body>
 </html>
