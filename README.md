@@ -2,6 +2,8 @@
 
 ¡Bienvenido a **Hammer Clicker**! Un juego adictivo de tipo "clicker" desarrollado íntegramente con tecnologías web modernas. Haz clic, acumula puntos y conviértete en el maestro del martillo.
 
+Entra aqui: https://jsanzperiasco-design.github.io/HammerClicker/
+
 
 ---
 
