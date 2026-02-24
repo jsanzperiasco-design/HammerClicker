@@ -1,0 +1,466 @@
+/* ═══════════════════════════════════════════════════════
+   animations.css — All @keyframes
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Title ── */
+@keyframes titleShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ── Hammer Core ── */
+@keyframes hammerFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-2deg); }
+}
+
+@keyframes hammerStrike {
+  0%   { transform: rotate(0) scale(1); }
+  40%  { transform: rotate(-28deg) scale(.88); }
+  100% { transform: rotate(0) scale(1.03); }
+}
+
+@keyframes hammerShake {
+  0%, 100% { transform: translateX(0); }
+  15%  { transform: translateX(-7px) rotate(-3deg); }
+  30%  { transform: translateX(7px) rotate(3deg); }
+  45%  { transform: translateX(-4px) rotate(-2deg); }
+  60%  { transform: translateX(4px) rotate(2deg); }
+  75%  { transform: translateX(-2px); }
+}
+
+.hmr.click { animation: hammerStrike .12s ease !important; }
+.hmr.shake { animation: hammerShake .5s ease !important; }
+
+/* ── Orbits ── */
+@keyframes orbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Center Glow ── */
+@keyframes centerGlow {
+  0%, 100% { transform: scale(1); opacity: .15; }
+  50% { transform: scale(1.15); opacity: .35; }
+}
+
+/* ── Cards ── */
+.cd.flash { animation: cardFlash .5s ease; }
+@keyframes cardFlash {
+  0% { background: rgba(245, 158, 11, .18); box-shadow: 0 0 18px rgba(245, 158, 11, .12); }
+  100% { background: var(--bg); box-shadow: none; }
+}
+
+.cd.flash-leg { animation: cardFlashLeg .6s ease; }
+@keyframes cardFlashLeg {
+  0% { background: rgba(139, 92, 246, .22); box-shadow: 0 0 25px rgba(139, 92, 246, .15); }
+  100% { background: var(--bg); box-shadow: none; }
+}
+
+/* ── Progress Bar ── */
+@keyframes progressShift {
+  from { background-position: 0% 0%; }
+  to { background-position: 200% 0%; }
+}
+
+/* ── Modal ── */
+@keyframes modalIn {
+  from { transform: scale(.9) translateY(18px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ── Screen Shake ── */
+body.shake { animation: screenShake .15s ease; }
+body.shake-h { animation: screenShakeH .3s ease; }
+body.warp { animation: screenWarp .35s ease; }
+
+@keyframes screenShake {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+}
+
+@keyframes screenShakeH {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-5px, 3px); }
+  20% { transform: translate(5px, -3px); }
+  30% { transform: translate(-3px, -3px); }
+  40% { transform: translate(3px, 2px); }
+  50% { transform: translate(-2px, 3px); }
+  60% { transform: translate(2px, -2px); }
+  70% { transform: translate(-2px, -1px); }
+}
+
+@keyframes screenWarp {
+  0%   { filter: none; transform: scale(1); }
+  30%  { filter: brightness(1.3) contrast(1.1); transform: scale(1.008); }
+  100% { filter: none; transform: scale(1); }
+}
+
+/* ── Fury ── */
+@keyframes furyBorderPulse {
+  0%, 100% { border-color: rgba(239, 68, 68, .3); box-shadow: inset 0 0 80px rgba(239, 68, 68, .08); }
+  50% { border-color: rgba(245, 158, 11, .5); box-shadow: inset 0 0 120px rgba(245, 158, 11, .06); }
+}
+
+@keyframes furyButtonPulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(245, 158, 11, .3); }
+  50% { box-shadow: 0 0 45px rgba(245, 158, 11, .5), 0 0 70px rgba(239, 68, 68, .2); }
+}
+
+@keyframes vignettePulse {
+  0%, 100% { opacity: .7; }
+  50% { opacity: 1; }
+}
+
+/* ── Combo Text ── */
+@keyframes comboPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes comboRainbow {
+  from { background-position: 0% 0%; }
+  to { background-position: 200% 0%; }
+}
+
+/* ── Notifications ── */
+@keyframes niSlide {
+  0% { opacity: 0; transform: translateX(40px); }
+  10% { opacity: 1; transform: translateX(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(25px); }
+}
+
+/* ── Golden Hammer ── */
+@keyframes goldenFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes goldenGlow {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, .6)); }
+  50% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1)); }
+}
+
+/* ── Background Particles ── */
+@keyframes bgRise {
+  0%  { transform: translateY(100vh) scale(.5); opacity: 0; }
+  10% { opacity: .25; }
+  90% { opacity: .25; }
+  100%{ transform: translateY(-20px) scale(1); opacity: 0; }
+}
+
+/* ── Hammer Tier Specific ── */
+@keyframes t6Pulse {
+  0%, 100% { filter: drop-shadow(0 0 30px rgba(6, 182, 212, .5)); }
+  50% { filter: drop-shadow(0 0 40px rgba(236, 72, 153, .6)); }
+}
+
+@keyframes t7Glow {
+  0%, 100% { filter: drop-shadow(0 0 35px rgba(255, 255, 255, .4)); }
+  33% { filter: drop-shadow(0 0 45px rgba(245, 158, 11, .6)); }
+  66% { filter: drop-shadow(0 0 42px rgba(139, 92, 246, .6)); }
+}
+
+@keyframes t8Cosmic {
+  0%   { filter: drop-shadow(0 0 40px rgba(255, 255, 255, .5)) drop-shadow(0 0 80px rgba(6, 182, 212, .4)); }
+  25%  { filter: drop-shadow(0 0 45px rgba(236, 72, 153, .5)) drop-shadow(0 0 90px rgba(139, 92, 246, .4)); }
+  50%  { filter: drop-shadow(0 0 42px rgba(245, 158, 11, .5)) drop-shadow(0 0 85px rgba(239, 68, 68, .4)); }
+  75%  { filter: drop-shadow(0 0 48px rgba(16, 185, 129, .5)) drop-shadow(0 0 95px rgba(6, 182, 212, .4)); }
+  100% { filter: drop-shadow(0 0 40px rgba(255, 255, 255, .5)) drop-shadow(0 0 80px rgba(6, 182, 212, .4)); }
+}
+
+@keyframes t9Omega {
+  0%, 100% {
+    filter: drop-shadow(0 0 50px rgba(255, 255, 255, .7)) drop-shadow(0 0 100px rgba(245, 158, 11, .5));
+    transform: translateY(-5px) scale(1.02);
+  }
+  50% {
+    filter: drop-shadow(0 0 60px rgba(245, 158, 11, .7)) drop-shadow(0 0 120px rgba(236, 72, 153, .5));
+    transform: translateY(-12px) scale(1.05);
+  }
+}
+
+/* ── Divine Card Border ── */
+@keyframes divineBorder {
+  0% { border-color: rgba(6, 182, 212, .35); }
+  33% { border-color: rgba(245, 158, 11, .35); }
+  66% { border-color: rgba(236, 72, 153, .35); }
+  100% { border-color: rgba(6, 182, 212, .35); }
+}
+
+@keyframes divineShift {
+  from { background-position: 0% 0%; }
+  to { background-position: 200% 0%; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SVG INTERNAL ANIMATIONS — Tier-specific effects
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Core Pulse (energy cores, glows) ── */
+@keyframes svgPulse {
+  0%, 100% { opacity: .3; }
+  50% { opacity: .8; }
+}
+
+/* ── Edge Glow (forged tier blue edges) ── */
+@keyframes svgEdgeGlow {
+  0%, 100% { opacity: .3; stroke-width: .8; }
+  50% { opacity: .65; stroke-width: 1.5; }
+}
+
+/* ── Lightning Bolt Flash ── */
+@keyframes svgBolt {
+  0%, 85%, 100% { opacity: .3; }
+  88% { opacity: .8; }
+  92% { opacity: .2; }
+  95% { opacity: .7; }
+}
+
+/* ── Rune Glow (legendary inscriptions) ── */
+@keyframes svgRuneGlow {
+  0%, 100% { opacity: .2; }
+  50% { opacity: .6; }
+}
+
+/* ── Aura Pulse (background glow) ── */
+@keyframes svgAuraPulse {
+  0%, 100% { transform: scale(1); opacity: .15; }
+  50% { transform: scale(1.08); opacity: .3; }
+}
+
+/* ── Floating Crystal Shards (mythic) ── */
+@keyframes svgFloat1 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-3px, -6px) rotate(-5deg); }
+}
+@keyframes svgFloat2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(4px, -4px) rotate(5deg); }
+}
+@keyframes svgFloat3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-2px, -5px) rotate(-3deg); }
+}
+
+/* ── Star Twinkle (cosmic) ── */
+@keyframes svgTwinkle1 {
+  0%, 100% { opacity: .2; r: 1; }
+  50% { opacity: .8; r: 2; }
+}
+@keyframes svgTwinkle2 {
+  0%, 100% { opacity: .15; r: .8; }
+  40% { opacity: .6; r: 1.5; }
+  100% { opacity: .15; r: .8; }
+}
+
+/* ── Orbit Ring Rotation (cosmic) ── */
+@keyframes svgOrbitRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Halo Pulse (divine) ── */
+@keyframes svgHaloPulse {
+  0%, 100% { opacity: .3; transform: scale(1); }
+  50% { opacity: .6; transform: scale(1.1); }
+}
+
+/* ── Fragment Float (transcendent) ── */
+@keyframes svgFragFloat1 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: .65; }
+  50% { transform: translate(-5px, -8px) rotate(-8deg); opacity: .45; }
+}
+@keyframes svgFragFloat2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: .65; }
+  50% { transform: translate(5px, -6px) rotate(6deg); opacity: .45; }
+}
+@keyframes svgFragFloat3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: .55; }
+  50% { transform: translate(0, -10px) rotate(-4deg); opacity: .35; }
+}
+
+/* ── Omega Aura (ultimate pulsing glow) ── */
+@keyframes svgOmegaAura {
+  0%, 100% { transform: scale(1); opacity: .15; }
+  50% { transform: scale(1.12); opacity: .3; }
+}
+
+/* ── Omega Symbol Glow ── */
+@keyframes svgOmegaSym {
+  0%, 100% { opacity: .4; }
+  50% { opacity: .85; }
+}
+
+/* ── Energy Spiral Animation (omega handle) ── */
+@keyframes svgSpiral1 {
+  0%, 100% { opacity: .2; stroke-dashoffset: 0; }
+  50% { opacity: .45; stroke-dashoffset: 20; }
+}
+@keyframes svgSpiral2 {
+  0%, 100% { opacity: .2; stroke-dashoffset: 0; }
+  50% { opacity: .4; stroke-dashoffset: -20; }
+}
+
+/* ── Hammer Spin (Milestone celebration) ── */
+@keyframes hammerSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(90deg) scale(1.1); }
+  50%  { transform: rotate(180deg) scale(1.18); }
+  75%  { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.hmr.spin { animation: hammerSpin .8s cubic-bezier(.25,.46,.45,.94) !important; }
+
+/* ── Hammer Power-Up Flash ── */
+@keyframes hammerPowerUp {
+  0%   { filter: brightness(1); }
+  25%  { filter: brightness(2.8) saturate(1.6); }
+  100% { filter: brightness(1); }
+}
+.hmr.power-up { animation: hammerPowerUp .5s ease !important; }
+
+/* ── Hammer Mega Strike (Ultra crit) ── */
+@keyframes hammerMegaStrike {
+  0%   { transform: rotate(0) scale(1); filter: brightness(1); }
+  20%  { transform: rotate(-35deg) scale(.82); filter: brightness(1); }
+  50%  { transform: rotate(10deg) scale(1.25); filter: brightness(2.5); }
+  70%  { transform: rotate(-3deg) scale(1.08); filter: brightness(1.4); }
+  100% { transform: rotate(0) scale(1); filter: brightness(1); }
+}
+.hmr.mega-strike { animation: hammerMegaStrike .3s ease !important; }
+
+/* ── Reward Badge Pulse ── */
+@keyframes rewardBadgePulse {
+  0%, 100% { transform: scale(1); opacity: .85; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+/* ── Reward Button Pulse ── */
+@keyframes rewardBtnPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, .3); }
+  50% { box-shadow: 0 0 28px rgba(16, 185, 129, .6), 0 0 55px rgba(6, 182, 212, .25); }
+}
+
+/* ── Reward Border Glow ── */
+@keyframes rewardBorderGlow {
+  0%, 100% { border-color: rgba(16, 185, 129, .2); box-shadow: inset 0 0 50px rgba(16, 185, 129, .03); }
+  50% { border-color: rgba(6, 182, 212, .4); box-shadow: inset 0 0 90px rgba(6, 182, 212, .03); }
+}
+
+/* ── Ad Banner Slide-In ── */
+@keyframes bannerSlideIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Ad Content Entrance ── */
+@keyframes adContentIn {
+  from { transform: scale(.85) translateY(30px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ── Shimmer (ad progress bars) ── */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* ── Bonus Active Vignette ── */
+@keyframes bonusVignette {
+  0%, 100% { opacity: .6; }
+  50% { opacity: .9; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PART 3 — Enhanced Strike & Milestone Animations
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Impact Strike (normal click: -15° → impact → +5° → return, 220ms) ── */
+@keyframes hammerImpactStrike {
+  0%   { transform: rotate(0deg) scale(1); filter: brightness(1); }
+  15%  { transform: rotate(-15deg) scale(0.95); filter: brightness(1); }
+  35%  { transform: rotate(-18deg) scale(0.92); filter: brightness(1.3); }
+  50%  { transform: rotate(5deg) scale(1.08); filter: brightness(1.8); }
+  65%  { transform: rotate(-2deg) scale(1.03); filter: brightness(1.2); }
+  80%  { transform: rotate(1deg) scale(1.01); filter: brightness(1.05); }
+  100% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+}
+.hmr.impact-strike { animation: hammerImpactStrike 220ms cubic-bezier(.22,.68,.36,1.2) !important; }
+
+/* ── Deep Strike (critical: heavier rotation + brightness flash, 300ms) ── */
+@keyframes hammerDeepStrike {
+  0%   { transform: rotate(0deg) scale(1) translateY(0); filter: brightness(1); }
+  18%  { transform: rotate(-22deg) scale(0.88) translateY(-5px); filter: brightness(1); }
+  35%  { transform: rotate(-25deg) scale(0.85) translateY(-8px); filter: brightness(1.5); }
+  50%  { transform: rotate(8deg) scale(1.18) translateY(4px); filter: brightness(2.5); }
+  65%  { transform: rotate(-3deg) scale(1.06) translateY(0); filter: brightness(1.5); }
+  80%  { transform: rotate(1deg) scale(1.02) translateY(0); filter: brightness(1.1); }
+  100% { transform: rotate(0deg) scale(1) translateY(0); filter: brightness(1); }
+}
+.hmr.deep-strike { animation: hammerDeepStrike 300ms cubic-bezier(.15,.85,.35,1.1) !important; }
+
+/* ── 360° Milestone Celebration (1.2s, brightness + glow ramp) ── */
+@keyframes milestone360 {
+  0%   { transform: rotate(0deg) scale(1); filter: brightness(1) drop-shadow(0 0 20px rgba(245,158,11,.4)); }
+  25%  { transform: rotate(90deg) scale(1.15); filter: brightness(1.5) drop-shadow(0 0 40px rgba(245,158,11,.7)); }
+  50%  { transform: rotate(180deg) scale(1.25); filter: brightness(2) drop-shadow(0 0 60px rgba(255,215,0,.9)); }
+  75%  { transform: rotate(270deg) scale(1.15); filter: brightness(1.5) drop-shadow(0 0 40px rgba(245,158,11,.7)); }
+  100% { transform: rotate(360deg) scale(1); filter: brightness(1) drop-shadow(0 0 20px rgba(245,158,11,.4)); }
+}
+.hmr.milestone-360 { animation: milestone360 1.2s cubic-bezier(.25,.46,.45,.94) !important; }
+
+/* ── Purchase Recoil (400ms, bounce on buy) ── */
+@keyframes hammerRecoil {
+  0%   { transform: translateY(0) scale(1); filter: brightness(1); }
+  20%  { transform: translateY(-6px) scale(1.05); filter: brightness(1.4); }
+  40%  { transform: translateY(3px) scale(0.97); filter: brightness(1.1); }
+  60%  { transform: translateY(-2px) scale(1.02); filter: brightness(1); }
+  80%  { transform: translateY(1px) scale(0.99); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
+}
+.hmr.recoil { animation: hammerRecoil 400ms ease-out !important; }
+
+/* ── Golden Glow Pulse (crit aura overlay, 400ms) ── */
+@keyframes goldenGlowPulse {
+  0%   { opacity: 0; transform: scale(0.3); }
+  30%  { opacity: 1; transform: scale(1.2); }
+  60%  { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+/* ── Milestone Aura Ring Expansion ── */
+@keyframes auraExpand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  15%  { opacity: 1; }
+  50%  { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+/* ── Floating Milestone Text ── */
+@keyframes milestoneTextFloat {
+  0%   { transform: translateX(-50%) translateY(0) scale(0.3); opacity: 0; }
+  12%  { transform: translateX(-50%) translateY(-15px) scale(1.4); opacity: 1; }
+  25%  { transform: translateX(-50%) translateY(-25px) scale(1); opacity: 1; }
+  65%  { transform: translateX(-50%) translateY(-90px) scale(1); opacity: 0.9; }
+  100% { transform: translateX(-50%) translateY(-160px) scale(0.8); opacity: 0; }
+}
+
+/* ── Impact Ground Ring (elliptical expansion) ── */
+@keyframes impactRing {
+  0%   { transform: translate(-50%, -50%) scaleX(0.1) scaleY(0.1); opacity: 0.9; }
+  40%  { transform: translate(-50%, -50%) scaleX(1.3) scaleY(0.5); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scaleX(2.5) scaleY(0.2); opacity: 0; }
+}
+
+/* ── Crit Scale Pulse (center container 1.12x) ── */
+@keyframes critScalePulse {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.12); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.center.crit-pulse { animation: critScalePulse 300ms ease-out; }
