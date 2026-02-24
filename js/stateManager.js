@@ -105,12 +105,21 @@ export const State = {
     return JSON.parse(JSON.stringify(_state));
   },
 
-  /** Load state from saved data (merges with defaults) */
+  /** Load state from saved data (merges with defaults, defensive against nulls) */
   loadSnapshot(data) {
     const def = defaultState();
     for (const k of Object.keys(def)) {
-      if (data[k] !== undefined) {
-        _state[k] = data[k];
+      if (data[k] !== undefined && data[k] !== null) {
+        // Type-check objects to prevent crashes (e.g. upgradeCounts must be object)
+        const defType = typeof def[k];
+        const dataType = typeof data[k];
+        if (defType === 'object' && !Array.isArray(def[k]) && (dataType !== 'object' || Array.isArray(data[k]))) {
+          _state[k] = def[k]; // fallback to default if type mismatch
+        } else if (Array.isArray(def[k]) && !Array.isArray(data[k])) {
+          _state[k] = def[k]; // ensure arrays stay arrays
+        } else {
+          _state[k] = data[k];
+        }
       } else {
         _state[k] = def[k];
       }

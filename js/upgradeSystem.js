@@ -59,9 +59,9 @@ export const UpgradeSystem = {
 
   /** Update all card contents and disabled states */
   updateCards() {
-    const golpes = State.get('golpes');
-    const uc = State.get('upgradeCounts');
-    const gc = State.get('generatorCounts');
+    const golpes = State.get('golpes') || 0;
+    const uc = State.get('upgradeCounts') || {};
+    const gc = State.get('generatorCounts') || {};
 
     UPGRADES.forEach((u, i) => {
       if (!_uCards[i]) return;

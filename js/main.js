@@ -744,6 +744,8 @@ function init() {
     if (AdSystem.isConsentGiven) {
       document.body.classList.add('has-banner');
     }
+  }).catch(e => {
+    console.warn('AdSystem init failed (non-fatal):', e);
   });
 
   // Sound state
@@ -861,8 +863,21 @@ function init() {
 }
 
 /* ── Boot ── */
+function safeBoot() {
+  try {
+    init();
+  } catch (e) {
+    console.error('Hammer Empire init failed:', e);
+    // Attempt minimal recovery — show hammer and allow clicks
+    const hmr = document.getElementById('hmr');
+    if (hmr && !hmr.innerHTML.trim()) {
+      hmr.innerHTML = '<div style="font-size:80px;text-align:center;cursor:pointer">⚒️</div>';
+    }
+  }
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', safeBoot);
 } else {
-  init();
+  safeBoot();
 }

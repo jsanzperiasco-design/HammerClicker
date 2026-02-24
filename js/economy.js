@@ -139,7 +139,7 @@ export function calcCost(baseCost, growthRate, owned) {
 /** Recalculate total click power from all upgrades */
 export function recalcClickPower() {
   let total = 1; // base
-  const uc = State.get('upgradeCounts');
+  const uc = State.get('upgradeCounts') || {};
   UPGRADES.forEach(u => { total += u.pw * (uc[u.id] || 0); });
   State.set('clickPower', total);
 }
@@ -147,7 +147,7 @@ export function recalcClickPower() {
 /** Recalculate total GPS from all generators */
 export function recalcGPS() {
   let total = 0;
-  const gc = State.get('generatorCounts');
+  const gc = State.get('generatorCounts') || {};
   GENERATORS.forEach(g => { total += g.gps * (gc[g.id] || 0); });
   State.set('gps', total);
 }

@@ -133,23 +133,81 @@ const BANNERS = [
 ];
 
 /* ═══════════════════════════════════════════════════════
-   §3  SDK LOADER
+   §3  SDK LOADER + Live Ad Network Integration
    ═══════════════════════════════════════════════════════ */
+
+/* ── Ad Network IDs ── */
+const LIVE_AD_CONTAINER_ID = 'container-18e6fe8da5f48e31e9d71de2dbd5b233';
+const SECONDARY_AD_SCRIPT  = 'https://pl28780933.effectivegatecpm.com/7f/b8/73/7fb87382e3c3296ca657770314a0c15e.js';
+let _secondaryAdLoaded = false;
+
+/** Check if the live ad network script has loaded and rendered content */
+function _hasLiveAd() {
+  const el = document.getElementById(LIVE_AD_CONTAINER_ID);
+  return el && el.children.length > 0;
+}
+
+/** Clone/move the live ad container into a target slot */
+function _injectLiveAdInto(targetSlotId) {
+  const source = document.getElementById(LIVE_AD_CONTAINER_ID);
+  const target = document.getElementById(targetSlotId);
+  if (!source || !target) return false;
+  target.innerHTML = '';
+  target.appendChild(source.cloneNode(true));
+  const placeholder = target.closest('.ad-placeholder');
+  if (placeholder) placeholder.classList.add('has-live-ad');
+  return true;
+}
+
+/** Detect when the banner ad loads and switch to live mode */
+function _watchBannerAd() {
+  const container = document.getElementById(LIVE_AD_CONTAINER_ID);
+  if (!container) return;
+  const observer = new MutationObserver(() => {
+    if (container.children.length > 0) {
+      const banner = document.getElementById('ad-banner');
+      if (banner) banner.classList.add('has-live-ad');
+      _log('Live banner ad detected');
+      observer.disconnect();
+    }
+  });
+  observer.observe(container, { childList: true, subtree: true });
+  if (container.children.length > 0) {
+    const banner = document.getElementById('ad-banner');
+    if (banner) banner.classList.add('has-live-ad');
+  }
+}
+
+/**
+ * Dynamically load the secondary ad script (popunder/interstitial network).
+ * Only called AFTER user consent is granted — respects GDPR/CCPA.
+ */
+function _loadSecondaryAdScript() {
+  if (_secondaryAdLoaded) return;
+  _secondaryAdLoaded = true;
+  try {
+    const s = document.createElement('script');
+    s.src = SECONDARY_AD_SCRIPT;
+    s.onload = () => _log('Secondary ad script loaded (EffectiveGate popunder)');
+    s.onerror = () => _log('Secondary ad script failed to load');
+    document.body.appendChild(s);
+    _trackEvent('secondary_ad_loaded');
+  } catch (e) {
+    _log('Error loading secondary ad script:', e);
+  }
+}
+
 function _loadSDK() {
   return new Promise((resolve) => {
-    /* ── AdSense for Games H5 ──
-    try {
-      const script = document.createElement('script');
-      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX';
-      script.async = true; script.crossOrigin = 'anonymous';
-      script.onload = () => { _sdkProvider = 'adsense'; _sdkLoaded = true; resolve(true); };
-      script.onerror = () => resolve(false);
-      document.head.appendChild(script); return;
-    } catch(e) { resolve(false); return; }
-    */
-    _sdkProvider = 'simulated';
+    _sdkProvider = 'effectivegate-dual';
     _sdkLoaded = true;
-    _log('Using simulated ads (no SDK)');
+    _log('Using EffectiveGate dual network (banner + popunder)');
+    // Watch for live banner ad content
+    setTimeout(() => _watchBannerAd(), 1000);
+    // Load secondary ad only if consent already granted
+    if (_consentGiven) {
+      setTimeout(() => _loadSecondaryAdScript(), 2000);
+    }
     resolve(true);
   });
 }
@@ -249,6 +307,10 @@ function _simulateRewardedCountdown(resolve) {
   if (info) info.textContent = `Recompensa: x${AD_CFG.rewarded.bonusMultiplier} durante ${AD_CFG.rewarded.bonusDurationMs / 1000}s`;
   if (modal) modal.classList.add('on');
   if (close) close.style.display = 'none';
+
+  // Inject live ad into rewarded slot if available
+  _injectLiveAdInto('ad-rw-live');
+
   let elapsed = 0;
   const total = AD_CFG.rewarded.watchDurationMs;
   _watchTimer = setInterval(() => {
@@ -276,6 +338,10 @@ function _simulateInterstitialCountdown(context, resolve) {
   if (ctx) ctx.textContent = msgs[context] || msgs.general;
   if (modal) modal.classList.add('on');
   if (skip) { skip.style.display = 'none'; skip.disabled = true; }
+
+  // Inject live ad into interstitial slot if available
+  _injectLiveAdInto('ad-int-live');
+
   let elapsed = 0;
   const skipAfter = AD_CFG.interstitial.skipAfterMs;
   _skipTimer = setInterval(() => {
@@ -386,11 +452,33 @@ export const AdSystem = {
     _sessionStart = Date.now();
     _assignABGroup();
     if (AD_CFG.global.consentRequired) {
-      if (_checkConsent() === null) this._showConsentBanner();
+      const consentResult = _checkConsent();
+      if (consentResult === null) {
+        // First visit — show consent banner
+        this._showConsentBanner();
+      } else if (consentResult === false) {
+        // Previously denied — hide all ad UI
+        _consentGiven = false;
+        const banner = document.getElementById('ad-banner');
+        if (banner) banner.style.display = 'none';
+        const rwc = document.getElementById('rw-c');
+        if (rwc) rwc.style.display = 'none';
+      } else {
+        // Previously granted — show banner
+        _consentGiven = true;
+        const banner = document.getElementById('ad-banner');
+        if (banner) banner.style.display = 'flex';
+      }
     } else { _consentGiven = true; }
-    await _loadSDK();
+    try {
+      await _loadSDK();
+    } catch (e) {
+      console.warn('[AdSystem] SDK load failed:', e);
+    }
     _initialized = true;
-    this._rotateBanner();
+    if (_consentGiven) {
+      this._rotateBanner();
+    }
     _bannerInterval = setInterval(() => this._rotateBanner(), AD_CFG.banner.rotateMs);
     _schedulePreload();
     _preloadInterstitial();
@@ -406,6 +494,8 @@ export const AdSystem = {
   grantConsent() {
     _saveConsent(true);
     document.getElementById('consent-banner')?.style.setProperty('display', 'none');
+    // Load secondary ad network now that consent is granted
+    _loadSecondaryAdScript();
     _trackEvent('consent_granted');
   },
   denyConsent() {
@@ -428,12 +518,14 @@ export const AdSystem = {
   closeBanner() {
     const el = document.getElementById('ad-banner');
     if (el) el.style.display = 'none';
+    document.body.classList.remove('has-banner');
     _bannerVisible = false; _trackEvent('banner_closed');
   },
   showBanner() {
     if (!_consentGiven) return;
     const el = document.getElementById('ad-banner');
     if (el) el.style.display = 'flex';
+    document.body.classList.add('has-banner');
     _bannerVisible = true;
   },
 
@@ -739,7 +831,11 @@ export const AdSystem = {
   get isRewardActive()   { return _bonusActive; },
   get rewardMultiplier() { return _bonusActive ? AD_CFG.rewarded.bonusMultiplier : 1; },
   get config()           { return AD_CFG; },
-  get provider()         { return _sdkProvider; },
+  get provider()         {
+    if (_sdkProvider === 'effectivegate-dual') return 'EffectiveGate Dual (Banner+Pop)';
+    if (_sdkProvider === 'effectivegate') return 'EffectiveGate CPM';
+    return _sdkProvider;
+  },
   get analytics()        { return { ..._analytics }; },
   get isConsentGiven()   { return _consentGiven; },
 

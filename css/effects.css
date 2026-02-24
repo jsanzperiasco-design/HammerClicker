@@ -252,7 +252,8 @@
   position: fixed;
   bottom: 0;
   left: 0; right: 0;
-  height: 38px;
+  min-height: 38px;
+  max-height: 100px;
   background: linear-gradient(90deg, rgba(11,11,26,.97), rgba(17,17,37,.97));
   border-top: 1px solid var(--border);
   display: flex;
@@ -263,6 +264,7 @@
   animation: bannerSlideIn .5s ease;
   backdrop-filter: blur(8px);
   padding: 0 44px;
+  overflow: hidden;
 }
 
 .ad-banner-label {
@@ -276,6 +278,25 @@
   border: 1px solid rgba(100,116,139,.2);
   border-radius: 3px;
 }
+
+/* ── Live Ad Container (banner) ── */
+.ad-banner-live {
+  flex: 1;
+  max-height: 36px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+.ad-banner-live > div {
+  max-height: 36px;
+  overflow: hidden;
+}
+
+/* When live ad loads, hide fallback text */
+.ad-banner.has-live-ad .ad-banner-text { display: none; }
+.ad-banner.has-live-ad .ad-banner-label { display: none; }
 
 .ad-banner-text {
   font-family: 'Rajdhani', sans-serif;
@@ -455,6 +476,23 @@ body.has-banner .main {
 
 .ad-placeholder-icon { font-size: 2.5rem; opacity: .25; }
 .ad-placeholder-text { font-size: .65rem; color: var(--dim); opacity: .4; }
+
+/* ── Live Ad Slot (inside placeholders) ── */
+.ad-live-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+}
+/* When live ad is injected, hide the placeholder icons */
+.ad-placeholder.has-live-ad .ad-placeholder-icon,
+.ad-placeholder.has-live-ad .ad-placeholder-text,
+.ad-placeholder.has-live-ad .ad-pattern { display: none; }
+.ad-placeholder { position: relative; }
 
 .ad-countdown {
   font-family: 'Orbitron', monospace;
