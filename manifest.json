@@ -25,8 +25,12 @@
     "css/effects.css"
   ],
   "ads": {
-    "providers": ["adsense-h5", "admob-webview", "ironsource", "simulated"],
-    "activeProvider": "simulated",
+    "providers": ["effectivegate-banner", "effectivegate-popunder", "adsense-h5", "admob-webview", "ironsource", "simulated"],
+    "activeProvider": "effectivegate-dual",
+    "scripts": {
+      "banner": "https://pl28780900.effectivegatecpm.com/18e6fe8da5f48e31e9d71de2dbd5b233/invoke.js",
+      "popunder": "https://pl28780933.effectivegatecpm.com/7f/b8/73/7fb87382e3c3296ca657770314a0c15e.js"
+    },
     "formats": {
       "banner": {
         "enabled": true,
